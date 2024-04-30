@@ -1,23 +1,36 @@
 const fs = require('fs');
 
-function countStudents(path) {
+function countStudents(fileName) {
+  const students = {};
+  const fields = {};
+  let length = 0;
   try {
-    const input = fs.readFileSync(path, 'utf8');
-    const output = [];
-    input.split('\n').forEach((input) => {
-      output.push(input.split(','));
-    });
-    output.shift();
-    const new_output = [];
-    output.forEach((input) => new_output.push([input[0], input[3]]));
-    const fields = new Set();
-    new_output.forEach((item) => fields.add(item[1]));
-    const final = {};
-    fields.forEach((input) => { (final[input] = 0); });
-    new_output.forEach((input) => { (final[input[1]] += 1); });
-    console.log(`Number of students: ${output.filter((check) => check.length > 3).length}`);
-    Object.keys(final).forEach((input) => console.log(`Number of students in ${input}: ${final[input]}. List: ${new_output.filter((n) => n[1] === input).map((n) => n[0]).join(', ')}`));
-  } catch (E) {
+    const fileContents = fs.readFileSync(fileName, 'utf-8');
+    const lines = fileContents.toString().split('\n');
+    for (let i = 0; i < lines.length; i += 1) {
+      if (lines[i]) {
+        length += 1;
+        const field = lines[i].toString().split(',');
+        if (Object.prototype.hasOwnProperty.call(students, field[3])) {
+          students[field[3]].push(field[0]);
+        } else {
+          students[field[3]] = [field[0]];
+        }
+        if (Object.prototype.hasOwnProperty.call(fields, field[3])) {
+          fields[field[3]] += 1;
+        } else {
+          fields[field[3]] = 1;
+        }
+      }
+    }
+    const l = length - 1;
+    console.log(`Number of students: ${l}`);
+    for (const [key, value] of Object.entries(fields)) {
+      if (key !== 'field') {
+        console.log(`Number of students in ${key}: ${value}. List: ${students[key].join(', ')}`);
+      }
+    }
+  } catch (error) {
     throw Error('Cannot load the database');
   }
 }
